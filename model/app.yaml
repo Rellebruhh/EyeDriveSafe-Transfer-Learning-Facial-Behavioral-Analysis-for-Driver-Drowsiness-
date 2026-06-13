@@ -1,0 +1,13 @@
+name: 
+description: 
+ports: []
+bricks:
+- arduino:video_image_classification:
+    variables:
+      EI_V_CLASSIFICATION_MODEL: /home/arduino/.arduino-bricks/ei-models/relleproj2-linux-aarch64-v10.eim
+- arduino:web_ui: {}
+- arduino:arduino_cloud:
+    variables:
+      ARDUINO_DEVICE_ID: [get your arduino cloud device id]
+      ARDUINO_SECRET: [get the given arduino cloud secret]
+icon: 
