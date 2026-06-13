@@ -1,10 +1,4 @@
-  /*
-   * EYEDRIVESAFE Monitoring Dashboard
-   * Dark automotive UI theme
-   * SPDX-License-Identifier: MPL-2.0
-   */
-  
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
+   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap');
   
   /* ==================== TOKENS ==================== */
   :root {
