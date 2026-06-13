@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EYEDRIVESAFE Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Alert Overlay -->
+    <div class="alert-overlay" id="alertOverlay">
+        <div class="alert-overlay-content">
+            <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                <path d="M32 4L4 56h56L32 4z" stroke="#FF3B30" stroke-width="3" fill="rgba(255,59,48,0.15)"/>
+                <line x1="32" y1="22" x2="32" y2="38" stroke="#FF3B30" stroke-width="3" stroke-linecap="round"/>
+                <circle cx="32" cy="46" r="2" fill="#FF3B30"/>
+            </svg>
+            <span>DROWSINESS ALERT</span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <h1 class="header-title">EYEDRIVESAFE</h1>
+            <span class="header-subtitle">Drowsiness Detection System</span>
+        </div>
+        <div class="header-right">
+            <div class="connection-indicator">
+                <span class="connection-dot" id="connectionDot"></span>
+                <span class="connection-label">Board</span>
+            </div>
+            <div class="session-timer">
+                <span class="timer-label">Session</span>
+                <span class="timer-value" id="sessionClock">00:00:00</span>
+            </div>
+            <div class="fps-display">
+                <span class="fps-value" id="fpsCounter">0</span>
+                <span class="fps-label">FPS (Classification Callbacks per Second) </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="dashboard-grid">
+        <!-- Left: Video Feed + Log -->
+        <section class="panel-stack">
+            <!-- Video Feed -->
+            <section class="panel panel-video">
+                <div class="video-container">
+                    <div class="video-placeholder" id="videoPlaceholder">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <rect x="4" y="8" width="40" height="28" rx="4" stroke="#4A5568" stroke-width="2" fill="none"/>
+                            <circle cx="24" cy="22" r="6" stroke="#4A5568" stroke-width="2" fill="none"/>
+                            <path d="M4 36h40" stroke="#4A5568" stroke-width="2"/>
+                        </svg>
+                        <p>Waiting for camera feed...</p>
+                    </div>
+                    <iframe id="dynamicIframe" width="640" height="480" frameBorder="0" style="display: none;"></iframe>
+                </div>
+            </section>
+
+            <!-- Classification Log -->
+            <section class="panel panel-log">
+                <div class="panel-header">
+                    <span class="panel-label">Classification Log</span>
+                </div>
+                <ul class="detection-log" id="recentClassifications"></ul>
+            </section>
+        </section>
+
+        <!-- Right: Status + Metrics -->
+        <aside class="panel-stack">
+            <!-- Primary: Alertness State -->
+            <section class="panel panel-state" id="statePanel">
+                <div class="state-display">
+                    <div class="state-icon" id="stateIcon">
+                        <svg id="iconAwake" class="icon-svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
+                            <circle cx="20" cy="20" r="16" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                            <circle cx="14" cy="17" r="2" fill="currentColor"/>
+                            <circle cx="26" cy="17" r="2" fill="currentColor"/>
+                            <path d="M13 26 Q20 31 27 26" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        </svg>
+                        <svg id="iconWarning" class="icon-svg" width="40" height="40" viewBox="0 0 40 40" fill="none" style="display:none;">
+                            <circle cx="20" cy="20" r="16" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                            <line x1="12" y1="17" x2="18" y2="17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                            <line x1="22" y1="17" x2="28" y2="17" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                            <line x1="14" y1="26" x2="26" y2="26" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <svg id="iconAlert" class="icon-svg" width="40" height="40" viewBox="0 0 40 40" fill="none" style="display:none;">
+                            <circle cx="20" cy="20" r="16" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                            <line x1="12" y1="18" x2="18" y2="16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                            <line x1="22" y1="16" x2="28" y2="18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                            <path d="M14 28 Q20 24 26 28" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+                            <line x1="20" y1="4" x2="20" y2="1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <line x1="20" y1="39" x2="20" y2="36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="state-info">
+                        <span class="state-label" id="stateLabel">AWAKE</span>
+                        <span class="state-confidence" id="stateConfidence">--</span>
+                    </div>
+                </div>
+                <div class="state-bar" id="stateBar"></div>
+            </section>
+
+            <!-- Metrics Row -->
+            <div class="metrics-row">
+                <section class="panel panel-metric">
+                    <span class="metric-label">Drowsy Episodes</span>
+                    <div class="metric-value-row">
+                        <span class="metric-value" id="drowsyEpisodes">--</span>
+                        <span class="metric-unit">total</span>
+                    </div>
+                    <span class="metric-status" id="drowsyEpisodesStatus">None</span>
+                </section>
+                <section class="panel panel-metric">
+                    <span class="metric-label">DFR</span>
+                    <div class="metric-value-row">
+                        <span class="metric-value" id="dfrValue">--</span>
+                        <span class="metric-unit">%</span>
+                    </div>
+                    <span class="metric-status" id="dfrStatus">Normal</span>
+                </section>
+            </div>
+
+            <!-- Session Stats -->
+            <section class="panel panel-stats">
+                <div class="panel-header">
+                    <span class="panel-label">Session</span>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-value" id="warningCount">0</span>
+                        <span class="stat-label">Warnings</span>
+                    </div>
+                    <div class="stat-item stat-item-alert">
+                        <span class="stat-value" id="alertCount">0</span>
+                        <span class="stat-label">Alerts</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Confidence Control -->
+            <section class="panel panel-confidence">
+                <div class="panel-header">
+                    <span class="panel-label">Confidence Threshold</span>
+                    <button class="btn-reset-sm" id="confidenceResetButton" title="Reset to 0.50">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                            <path d="M1 6a5 5 0 1 1 0.9 2.9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <polyline points="0.5,3.5 1,6 3.5,5.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="confidence-control">
+                    <div class="slider-track">
+                        <div class="slider-progress" id="sliderProgress"></div>
+                        <input type="range" id="confidenceSlider" min="0" max="1" step="0.01" value="0.5" class="slider-input">
+                    </div>
+                    <input type="text" id="confidenceInput" class="confidence-input" value="0.50">
+                </div>
+            </section>
+        </aside>
+
+        <!-- ==================== FATIGUE REPORT ==================== -->
+        <!-- FIX: Removed session reset button. Report auto-pushes to Arduino Cloud. -->
+        <section class="panel panel-analysis">
+            <div class="panel-header">
+                <span class="panel-label">Fatigue Report</span>
+                <div class="analysis-actions">
+                    <button class="btn-analysis btn-analysis-primary" id="btnRunAnalysis">
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                            <rect x="2" y="3" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
+                            <line x1="5" y1="6" x2="9" y2="6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                            <line x1="5" y1="8" x2="8" y2="8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                        </svg>
+                        Generate Report
+                    </button>
+                </div>
+            </div>
+            <div class="analysis-body" id="analysisBody">
+                <div class="analysis-placeholder" id="analysisPlaceholder">
+                    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                        <rect x="4" y="6" width="24" height="20" rx="3" stroke="#4A5568" stroke-width="1.5" fill="none"/>
+                        <line x1="9" y1="12" x2="23" y2="12" stroke="#4A5568" stroke-width="1.5" stroke-linecap="round"/>
+                        <line x1="9" y1="16" x2="20" y2="16" stroke="#4A5568" stroke-width="1.5" stroke-linecap="round"/>
+                        <line x1="9" y1="20" x2="17" y2="20" stroke="#4A5568" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <p>Drive for a few minutes, then tap "Generate Report" for an AI fatigue report.</p>
+                </div>
+                <div class="analysis-content" id="analysisContent" style="display:none;"></div>
+                <div class="analysis-loading" id="analysisLoading" style="display:none;">
+                    <div class="loading-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <p>Generating fatigue report...</p>
+                </div>
+            </div>
+        </section>
+
+        <div id="error-container" class="error-banner" style="display: none;"></div>
+    </main>
+
+    <!-- Video loader script -->
+    <script>
+        const iframe = document.getElementById('dynamicIframe');
+        const placeholder = document.getElementById('videoPlaceholder');
+        const currentHostname = window.location.hostname;
+        const targetPort = 4912;
+        const targetPath = '/embed';
+        const streamUrl = `http://${currentHostname}:${targetPort}${targetPath}`;
+
+        let intervalId;
+
+        iframe.onload = () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+            placeholder.style.display = 'none';
+            iframe.style.display = 'block';
+        };
+
+        const startLoading = () => {
+            iframe.src = streamUrl;
+        };
+
+        intervalId = setInterval(startLoading, 1000);
+    </script>
+
+    <script src="libs/socket.io.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
