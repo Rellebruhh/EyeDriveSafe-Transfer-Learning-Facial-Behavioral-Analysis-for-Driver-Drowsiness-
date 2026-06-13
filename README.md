@@ -7,7 +7,7 @@
 
 # EyeDriveSafe
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.xxxxxxx.svg)](https://doi.org/10.5281/zenodo.xxxxxxx)
+[![DOI](https://zenodo.org/badge/1128414697.svg)](https://doi.org/10.5281/zenodo.20680096)
 
 ## Overview
 EyeDriveSafe is a portable, IoT-enabled driver drowsiness detection and monitoring system. It uses a transfer learning-based facial behavioral analysis pipeline deployed on an edge computing device. The system detects driver fatigue in real-time using whole-frame binary classification and translates visual cues into an escalating three-tier alert state machine (AWAKE, WARNING, ALERT).
